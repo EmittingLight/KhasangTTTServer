@@ -8,11 +8,12 @@ import java.net.*;
 
 public class TicTacToe extends JFrame {
     private JButton[] buttons = new JButton[9];
-    private char currentPlayer = 'X'; // Начинаем с символа 'X'
+    private char currentPlayer; // Теперь переменная для текущего игрока
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
     private String playerName;
+    private boolean firstPlayerRegistered = false; // Флаг, указывающий, зарегистрирован ли первый игрок
 
     public TicTacToe(String playerName) {
         this.playerName = playerName;
@@ -32,21 +33,26 @@ public class TicTacToe extends JFrame {
             buttons[i].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 50));
             buttons[i].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    buttonClicked(index);
+                    if (firstPlayerRegistered && playerName.equals("Player 2")) {
+                        // Если первый игрок уже зарегистрирован и текущий игрок - второй
+                        buttonClicked(index, 'O'); // Играет символом 'O'
+                    } else {
+                        buttonClicked(index, 'X'); // Играет символом 'X'
+                    }
                 }
             });
             add(buttons[i]);
         }
     }
 
-    private void buttonClicked(int index) {
+    private void buttonClicked(int index, char player) {
         if (buttons[index].getText().equals("") && currentPlayer != ' ') {
-            buttons[index].setText(String.valueOf(currentPlayer));
+            buttons[index].setText(String.valueOf(player)); // Устанавливаем символ текущего игрока
             out.println(index);
             checkForWin();
-            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
         }
     }
+
 
     private void checkForWin() {
         // Проверка горизонтальных линий
@@ -108,7 +114,6 @@ public class TicTacToe extends JFrame {
         }
     }
 
-
     private void connectToServer() {
         try {
             socket = new Socket("localhost", 5000);
@@ -127,14 +132,20 @@ public class TicTacToe extends JFrame {
                     String message = in.readLine();
                     if (message != null) {
                         if (message.startsWith("START")) {
-                            currentPlayer = message.charAt(6); // Получаем символ ('X' или 'O') текущего игрока
+                            // Проверяем, если первый игрок уже зарегистрирован, то текущий игрок - второй
+                            if (firstPlayerRegistered) {
+                                currentPlayer = 'O'; // Второй игрок начинает игру с символа 'O'
+                            } else {
+                                currentPlayer = 'X'; // Первый игрок начинает игру с символа 'X'
+                                firstPlayerRegistered = true; // Помечаем, что первый игрок зарегистрирован
+                            }
                         } else {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
                                 public void run() {
                                     buttons[index].setText(String.valueOf(currentPlayer));
                                     checkForWin();
-                                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X'; // Обновляем текущего игрока в соответствии с ходом
                                 }
                             });
                         }
