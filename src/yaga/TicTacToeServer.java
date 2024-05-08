@@ -2,6 +2,7 @@ package yaga;
 
 import java.io.*;
 import java.net.*;
+import java.util.Random;
 
 public class TicTacToeServer {
     private ServerSocket serverSocket;
@@ -11,6 +12,7 @@ public class TicTacToeServer {
     private PrintWriter player1Out;
     private BufferedReader player2In;
     private PrintWriter player2Out;
+    private Random random = new Random();
 
     public TicTacToeServer() {
         try {
@@ -26,8 +28,14 @@ public class TicTacToeServer {
             player2In = new BufferedReader(new InputStreamReader(player2Socket.getInputStream()));
             player2Out = new PrintWriter(player2Socket.getOutputStream(), true);
 
-            player1Out.println("START");
-            player2Out.println("START");
+            // Отправляем сообщение о том, с каким знаком начинает каждый игрок
+            if (random.nextBoolean()) {
+                player1Out.println("START X");
+                player2Out.println("START O");
+            } else {
+                player1Out.println("START O");
+                player2Out.println("START X");
+            }
 
             playGame();
         } catch (IOException e) {
@@ -59,6 +67,5 @@ public class TicTacToeServer {
         new TicTacToeServer();
     }
 }
-
 
 

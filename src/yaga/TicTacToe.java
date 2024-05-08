@@ -8,13 +8,15 @@ import java.net.*;
 
 public class TicTacToe extends JFrame {
     private JButton[] buttons = new JButton[9];
-    private char currentPlayer = 'X';
+    private char currentPlayer;
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
+    private String playerName;
 
-    public TicTacToe() {
-        setTitle("Tic Tac Toe");
+    public TicTacToe(String playerName) {
+        this.playerName = playerName;
+        setTitle("Tic Tac Toe - " + playerName);
         setSize(300, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 3));
@@ -67,8 +69,8 @@ public class TicTacToe extends JFrame {
                 while (true) {
                     String message = in.readLine();
                     if (message != null) {
-                        if (message.equals("START")) {
-                            // Начать игру
+                        if (message.startsWith("START")) {
+                            currentPlayer = message.charAt(6); // Получаем символ ('X' или 'O') текущего игрока
                         } else {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -87,11 +89,11 @@ public class TicTacToe extends JFrame {
         }
     }
 
-
     public static void main(String[] args) {
+        String playerName = JOptionPane.showInputDialog(null, "Введите ваше имя:");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new TicTacToe();
+                new TicTacToe(playerName);
             }
         });
     }
