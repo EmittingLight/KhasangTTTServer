@@ -8,7 +8,7 @@ import java.net.*;
 
 public class TicTacToe extends JFrame {
     private JButton[] buttons = new JButton[9];
-    private char currentPlayer;
+    private char currentPlayer = 'X'; // Начинаем с символа 'X'
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
@@ -49,8 +49,65 @@ public class TicTacToe extends JFrame {
     }
 
     private void checkForWin() {
-        // Проверка на выигрыш
+        // Проверка горизонтальных линий
+        for (int i = 0; i < 3; i++) {
+            if (!buttons[i*3].getText().isEmpty() &&
+                    buttons[i*3].getText().equals(buttons[i*3+1].getText()) &&
+                    buttons[i*3].getText().equals(buttons[i*3+2].getText())) {
+                JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
+                resetGame();
+                return;
+            }
+        }
+
+        // Проверка вертикальных линий
+        for (int i = 0; i < 3; i++) {
+            if (!buttons[i].getText().isEmpty() &&
+                    buttons[i].getText().equals(buttons[i+3].getText()) &&
+                    buttons[i].getText().equals(buttons[i+6].getText())) {
+                JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
+                resetGame();
+                return;
+            }
+        }
+
+        // Проверка диагоналей
+        if (!buttons[0].getText().isEmpty() &&
+                buttons[0].getText().equals(buttons[4].getText()) &&
+                buttons[0].getText().equals(buttons[8].getText())) {
+            JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
+            resetGame();
+            return;
+        }
+
+        if (!buttons[2].getText().isEmpty() &&
+                buttons[2].getText().equals(buttons[4].getText()) &&
+                buttons[2].getText().equals(buttons[6].getText())) {
+            JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
+            resetGame();
+            return;
+        }
+
+        // Проверка на ничью
+        boolean draw = true;
+        for (JButton button : buttons) {
+            if (button.getText().isEmpty()) {
+                draw = false;
+                break;
+            }
+        }
+        if (draw) {
+            JOptionPane.showMessageDialog(this, "Ничья!");
+            resetGame();
+        }
     }
+
+    private void resetGame() {
+        for (JButton button : buttons) {
+            button.setText("");
+        }
+    }
+
 
     private void connectToServer() {
         try {
@@ -98,4 +155,3 @@ public class TicTacToe extends JFrame {
         });
     }
 }
-
