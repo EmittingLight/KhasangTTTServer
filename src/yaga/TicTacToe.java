@@ -55,56 +55,56 @@ public class TicTacToe extends JFrame {
 
 
     private void checkForWin() {
-        // Проверка горизонтальных линий
-        for (int i = 0; i < 3; i++) {
-            if (!buttons[i*3].getText().isEmpty() &&
-                    buttons[i*3].getText().equals(buttons[i*3+1].getText()) &&
-                    buttons[i*3].getText().equals(buttons[i*3+2].getText())) {
-                JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
-                resetGame();
-                return;
+        boolean winnerFound = false;
+
+        // Проверка горизонтальных, вертикальных и диагональных линий
+        for (int i = 0; i < 8; i++) {
+            String line = null;
+            switch (i) {
+                case 0:
+                    line = buttons[0].getText() + buttons[1].getText() + buttons[2].getText();
+                    break;
+                case 1:
+                    line = buttons[3].getText() + buttons[4].getText() + buttons[5].getText();
+                    break;
+                case 2:
+                    line = buttons[6].getText() + buttons[7].getText() + buttons[8].getText();
+                    break;
+                case 3:
+                    line = buttons[0].getText() + buttons[3].getText() + buttons[6].getText();
+                    break;
+                case 4:
+                    line = buttons[1].getText() + buttons[4].getText() + buttons[7].getText();
+                    break;
+                case 5:
+                    line = buttons[2].getText() + buttons[5].getText() + buttons[8].getText();
+                    break;
+                case 6:
+                    line = buttons[0].getText() + buttons[4].getText() + buttons[8].getText();
+                    break;
+                case 7:
+                    line = buttons[2].getText() + buttons[4].getText() + buttons[6].getText();
+                    break;
             }
-        }
-
-        // Проверка вертикальных линий
-        for (int i = 0; i < 3; i++) {
-            if (!buttons[i].getText().isEmpty() &&
-                    buttons[i].getText().equals(buttons[i+3].getText()) &&
-                    buttons[i].getText().equals(buttons[i+6].getText())) {
-                JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
-                resetGame();
-                return;
-            }
-        }
-
-        // Проверка диагоналей
-        if (!buttons[0].getText().isEmpty() &&
-                buttons[0].getText().equals(buttons[4].getText()) &&
-                buttons[0].getText().equals(buttons[8].getText())) {
-            JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
-            resetGame();
-            return;
-        }
-
-        if (!buttons[2].getText().isEmpty() &&
-                buttons[2].getText().equals(buttons[4].getText()) &&
-                buttons[2].getText().equals(buttons[6].getText())) {
-            JOptionPane.showMessageDialog(this, "Победил игрок " + currentPlayer);
-            resetGame();
-            return;
-        }
-
-        // Проверка на ничью
-        boolean draw = true;
-        for (JButton button : buttons) {
-            if (button.getText().isEmpty()) {
-                draw = false;
+            if (line.equals("XXX") || line.equals("OOO")) {
+                winnerFound = true;
                 break;
             }
         }
-        if (draw) {
-            JOptionPane.showMessageDialog(this, "Ничья!");
-            resetGame();
+
+        // Если нет победителя и все кнопки заняты, то ничья
+        if (!winnerFound) {
+            boolean draw = true;
+            for (JButton button : buttons) {
+                if (button.getText().isEmpty()) {
+                    draw = false;
+                    break;
+                }
+            }
+            if (draw) {
+                JOptionPane.showMessageDialog(this, "Ничья!");
+                resetGame();
+            }
         }
     }
 
