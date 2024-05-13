@@ -8,12 +8,12 @@ import java.net.*;
 
 public class TicTacToe extends JFrame {
     private JButton[] buttons = new JButton[9];
-    private char currentPlayer; // Теперь переменная для текущего игрока
+    private char currentPlayer;
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
     private String playerName;
-    private boolean firstPlayerRegistered = false; // Флаг, указывающий, зарегистрирован ли первый игрок
+    private boolean firstPlayerRegistered = false;
 
     public TicTacToe(String playerName) {
         this.playerName = playerName;
@@ -53,11 +53,8 @@ public class TicTacToe extends JFrame {
         }
     }
 
-
     private void checkForWin() {
-        boolean winnerFound = false;
-
-        // Проверка горизонтальных, вертикальных и диагональных линий
+        // Проверяем наличие победителя
         for (int i = 0; i < 8; i++) {
             String line = null;
             switch (i) {
@@ -86,26 +83,28 @@ public class TicTacToe extends JFrame {
                     line = buttons[2].getText() + buttons[4].getText() + buttons[6].getText();
                     break;
             }
-            if (line.equals("XXX") || line.equals("OOO")) {
-                winnerFound = true;
-                break;
+            if (line.equals(currentPlayer + "" + currentPlayer + "" + currentPlayer)) {
+                JOptionPane.showMessageDialog(this, "Победитель: " + currentPlayer);
+                resetGame(); // Сбрасываем состояние игры
+                return; // Завершаем метод, чтобы избежать дополнительных действий
             }
         }
 
-        // Если нет победителя и все кнопки заняты, то ничья
-        if (!winnerFound) {
-            boolean draw = true;
-            for (JButton button : buttons) {
-                if (button.getText().isEmpty()) {
-                    draw = false;
-                    break;
-                }
-            }
-            if (draw) {
-                JOptionPane.showMessageDialog(this, "Ничья!");
-                resetGame();
+        // Проверяем наличие ничьей
+        if (isBoardFull()) {
+            JOptionPane.showMessageDialog(this, "Ничья!");
+            resetGame(); // Сбрасываем состояние игры
+            return; // Завершаем метод
+        }
+    }
+
+    private boolean isBoardFull() {
+        for (JButton button : buttons) {
+            if (button.getText().isEmpty()) {
+                return false;
             }
         }
+        return true;
     }
 
     private void resetGame() {
