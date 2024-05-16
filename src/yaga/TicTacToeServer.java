@@ -38,13 +38,13 @@ public class TicTacToeServer {
                 player2Out.println("START X");
             }
 
-            играть();
+            runGame();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void играть() {
+    private void runGame() {
         try {
             while (true) {
                 String messageFromPlayer1 = player1In.readLine();
