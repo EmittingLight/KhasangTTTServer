@@ -18,7 +18,7 @@ public class TicTacToe extends JFrame {
 
     public TicTacToe(String playerName) {
         this.playerName = playerName;
-        setTitle("Tic Tac Toe - " + playerName);
+        setTitle("Крестики-нолики - " + playerName);
         setSize(300, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 3));
@@ -35,9 +35,9 @@ public class TicTacToe extends JFrame {
             buttons[i].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (isMyTurn && buttons[index].getText().equals("")) {
-                        buttons[index].setText(String.valueOf(mySymbol)); // Устанавливаем символ текущего игрока
+                        buttons[index].setText(String.valueOf(mySymbol));
                         out.println(index);
-                        isMyTurn = false; // Блокируем возможность сделать еще один ход
+                        isMyTurn = false;
                         checkForWin();
                     } else if (!isMyTurn) {
                         JOptionPane.showMessageDialog(TicTacToe.this, "Это не ваш ход. Пожалуйста, подождите.", "Ошибка", JOptionPane.ERROR_MESSAGE);
@@ -49,57 +49,7 @@ public class TicTacToe extends JFrame {
     }
 
     private void checkForWin() {
-        // Проверяем наличие победителя
-        for (int i = 0; i < 8; i++) {
-            String line = null;
-            switch (i) {
-                case 0:
-                    line = buttons[0].getText() + buttons[1].getText() + buttons[2].getText();
-                    break;
-                case 1:
-                    line = buttons[3].getText() + buttons[4].getText() + buttons[5].getText();
-                    break;
-                case 2:
-                    line = buttons[6].getText() + buttons[7].getText() + buttons[8].getText();
-                    break;
-                case 3:
-                    line = buttons[0].getText() + buttons[3].getText() + buttons[6].getText();
-                    break;
-                case 4:
-                    line = buttons[1].getText() + buttons[4].getText() + buttons[7].getText();
-                    break;
-                case 5:
-                    line = buttons[2].getText() + buttons[5].getText() + buttons[8].getText();
-                    break;
-                case 6:
-                    line = buttons[0].getText() + buttons[4].getText() + buttons[8].getText();
-                    break;
-                case 7:
-                    line = buttons[2].getText() + buttons[4].getText() + buttons[6].getText();
-                    break;
-            }
-            if (line.equals(mySymbol + "" + mySymbol + "" + mySymbol)) {
-                JOptionPane.showMessageDialog(this, "Победитель: " + mySymbol);
-                resetGame(); // Сбрасываем состояние игры
-                return; // Завершаем метод, чтобы избежать дополнительных действий
-            }
-        }
-
-        // Проверяем наличие ничьей
-        if (isBoardFull()) {
-            JOptionPane.showMessageDialog(this, "Ничья!");
-            resetGame(); // Сбрасываем состояние игры
-            return; // Завершаем метод
-        }
-    }
-
-    private boolean isBoardFull() {
-        for (JButton button : buttons) {
-            if (button.getText().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        // Логика для проверки победы локально (на стороне клиента) убрана, так как теперь это делает сервер
     }
 
     private void resetGame() {
@@ -130,12 +80,18 @@ public class TicTacToe extends JFrame {
                             mySymbol = parts[1].charAt(0);
                             opponentSymbol = (mySymbol == 'X') ? 'O' : 'X';
                             isMyTurn = (mySymbol == 'X');
+                        } else if (message.startsWith("WINNER")) {
+                            String[] parts = message.split(" ");
+                            JOptionPane.showMessageDialog(TicTacToe.this, "Победитель: " + parts[1]);
+                            resetGame();
+                        } else if (message.equals("DRAW")) {
+                            JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!");
+                            resetGame();
                         } else {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
                                 public void run() {
                                     buttons[index].setText(String.valueOf(opponentSymbol));
-                                    checkForWin();
                                     isMyTurn = true;
                                 }
                             });
@@ -157,3 +113,4 @@ public class TicTacToe extends JFrame {
         });
     }
 }
+
