@@ -13,11 +13,11 @@ public class TicTacToe extends JFrame {
     private BufferedReader in;
     private PrintWriter out;
     private String playerName;
-    private boolean firstPlayerRegistered = false;
+    private boolean isMyTurn = false;
 
     public TicTacToe(String playerName) {
         this.playerName = playerName;
-        setTitle("Tic Tac Toe - " + playerName);
+        setTitle("Крестики-нолики - " + playerName);
         setSize(300, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 3));
@@ -33,11 +33,10 @@ public class TicTacToe extends JFrame {
             buttons[i].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 50));
             buttons[i].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if (firstPlayerRegistered && playerName.equals("Player 2")) {
-                        // Если первый игрок уже зарегистрирован и текущий игрок - второй
-                        buttonClicked(index, 'O'); // Играет символом 'O'
+                    if (isMyTurn) {
+                        buttonClicked(index);
                     } else {
-                        buttonClicked(index, 'X'); // Играет символом 'X'
+                        JOptionPane.showMessageDialog(TicTacToe.this, "Дождитесь своей очереди!");
                     }
                 }
             });
@@ -45,16 +44,17 @@ public class TicTacToe extends JFrame {
         }
     }
 
-    private void buttonClicked(int index, char player) {
-        if (buttons[index].getText().equals("") && currentPlayer != ' ') {
-            buttons[index].setText(String.valueOf(player)); // Устанавливаем символ текущего игрока
+    private void buttonClicked(int index) {
+        if (buttons[index].getText().equals("") && isMyTurn) {
+            buttons[index].setText(String.valueOf(currentPlayer));
             out.println(index);
             checkForWin();
+            isMyTurn = false;
+            updateButtonStates();
         }
     }
 
     private void checkForWin() {
-        // Проверяем наличие победителя
         for (int i = 0; i < 8; i++) {
             String line = null;
             switch (i) {
@@ -85,16 +85,14 @@ public class TicTacToe extends JFrame {
             }
             if (line.equals(currentPlayer + "" + currentPlayer + "" + currentPlayer)) {
                 JOptionPane.showMessageDialog(this, "Победитель: " + currentPlayer);
-                resetGame(); // Сбрасываем состояние игры
-                return; // Завершаем метод, чтобы избежать дополнительных действий
+                resetGame();
+                return;
             }
         }
 
-        // Проверяем наличие ничьей
         if (isBoardFull()) {
             JOptionPane.showMessageDialog(this, "Ничья!");
-            resetGame(); // Сбрасываем состояние игры
-            return; // Завершаем метод
+            resetGame();
         }
     }
 
@@ -124,6 +122,12 @@ public class TicTacToe extends JFrame {
         }
     }
 
+    private void updateButtonStates() {
+        for (JButton button : buttons) {
+            button.setEnabled(isMyTurn && button.getText().isEmpty());
+        }
+    }
+
     private class ServerListener implements Runnable {
         public void run() {
             try {
@@ -131,20 +135,20 @@ public class TicTacToe extends JFrame {
                     String message = in.readLine();
                     if (message != null) {
                         if (message.startsWith("START")) {
-                            // Проверяем, если первый игрок уже зарегистрирован, то текущий игрок - второй
-                            if (firstPlayerRegistered) {
-                                currentPlayer = 'O'; // Второй игрок начинает игру с символа 'O'
-                            } else {
-                                currentPlayer = 'X'; // Первый игрок начинает игру с символа 'X'
-                                firstPlayerRegistered = true; // Помечаем, что первый игрок зарегистрирован
-                            }
+                            currentPlayer = message.charAt(6);
+                        } else if (message.equals("YOUR TURN")) {
+                            isMyTurn = true;
+                            updateButtonStates();
+                        } else if (message.equals("WAIT")) {
+                            isMyTurn = false;
+                            updateButtonStates();
                         } else {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
                                 public void run() {
                                     buttons[index].setText(String.valueOf(currentPlayer));
                                     checkForWin();
-                                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X'; // Обновляем текущего игрока в соответствии с ходом
+                                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
                                 }
                             });
                         }
@@ -165,3 +169,4 @@ public class TicTacToe extends JFrame {
         });
     }
 }
+
