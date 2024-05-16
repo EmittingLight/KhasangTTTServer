@@ -28,7 +28,7 @@ public class TicTacToeServer {
             player2In = new BufferedReader(new InputStreamReader(player2Socket.getInputStream()));
             player2Out = new PrintWriter(player2Socket.getOutputStream(), true);
 
-            // Отправляем сообщение о том, с каким знаком начинает каждый игрок
+            // Определяем, кто начинает игру
             if (random.nextBoolean()) {
                 player1Out.println("START X");
                 player2Out.println("START O");
@@ -49,13 +49,11 @@ public class TicTacToeServer {
                 String messageFromPlayer1 = player1In.readLine();
                 if (messageFromPlayer1 != null) {
                     player2Out.println(messageFromPlayer1);
-                    player1Out.println(messageFromPlayer1);
                 }
 
                 String messageFromPlayer2 = player2In.readLine();
                 if (messageFromPlayer2 != null) {
                     player1Out.println(messageFromPlayer2);
-                    player2Out.println(messageFromPlayer2);
                 }
             }
         } catch (IOException e) {
@@ -67,5 +65,6 @@ public class TicTacToeServer {
         new TicTacToeServer();
     }
 }
+
 
 
