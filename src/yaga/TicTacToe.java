@@ -38,7 +38,6 @@ public class TicTacToe extends JFrame {
                         buttons[index].setText(String.valueOf(mySymbol));
                         out.println(index);
                         isMyTurn = false;
-                        checkForWin();
                     } else if (!isMyTurn) {
                         JOptionPane.showMessageDialog(TicTacToe.this, "Это не ваш ход. Пожалуйста, подождите.", "Ошибка", JOptionPane.ERROR_MESSAGE);
                     }
@@ -48,8 +47,16 @@ public class TicTacToe extends JFrame {
         }
     }
 
-    private void checkForWin() {
-        // Логика для проверки победы локально (на стороне клиента) убрана, так как теперь это делает сервер
+    private void showEndGameDialog(String message) {
+        int option = JOptionPane.showOptionDialog(this, message + "\nХотите начать новую игру?", "Игра завершена",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Да", "Нет"}, JOptionPane.YES_OPTION);
+
+        if (option == JOptionPane.YES_OPTION) {
+            out.println("NEW_GAME");
+            resetGame();
+        } else {
+            System.exit(0);
+        }
     }
 
     private void resetGame() {
@@ -82,11 +89,9 @@ public class TicTacToe extends JFrame {
                             isMyTurn = (mySymbol == 'X');
                         } else if (message.startsWith("WINNER")) {
                             String[] parts = message.split(" ");
-                            JOptionPane.showMessageDialog(TicTacToe.this, "Победитель: " + parts[1]);
-                            resetGame();
+                            showEndGameDialog("Победитель: " + parts[1]);
                         } else if (message.equals("DRAW")) {
-                            JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!");
-                            resetGame();
+                            showEndGameDialog("Ничья!");
                         } else {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -113,4 +118,5 @@ public class TicTacToe extends JFrame {
         });
     }
 }
+
 

@@ -49,14 +49,22 @@ public class TicTacToeServer {
             while (true) {
                 String messageFromPlayer1 = player1In.readLine();
                 if (messageFromPlayer1 != null) {
-                    processMove(messageFromPlayer1, 'X');
-                    player2Out.println(messageFromPlayer1);
+                    if (messageFromPlayer1.equals("NEW_GAME")) {
+                        startNewGame();
+                    } else {
+                        processMove(messageFromPlayer1, 'X');
+                        player2Out.println(messageFromPlayer1);
+                    }
                 }
 
                 String messageFromPlayer2 = player2In.readLine();
                 if (messageFromPlayer2 != null) {
-                    processMove(messageFromPlayer2, 'O');
-                    player1Out.println(messageFromPlayer2);
+                    if (messageFromPlayer2.equals("NEW_GAME")) {
+                        startNewGame();
+                    } else {
+                        processMove(messageFromPlayer2, 'O');
+                        player1Out.println(messageFromPlayer2);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -71,11 +79,9 @@ public class TicTacToeServer {
         if (winner != null) {
             player1Out.println("WINNER " + winner);
             player2Out.println("WINNER " + winner);
-            resetBoard();
         } else if (isBoardFull()) {
             player1Out.println("DRAW");
             player2Out.println("DRAW");
-            resetBoard();
         }
     }
 
@@ -115,10 +121,22 @@ public class TicTacToeServer {
         }
     }
 
+    private void startNewGame() {
+        resetBoard();
+        if (random.nextBoolean()) {
+            player1Out.println("START X");
+            player2Out.println("START O");
+        } else {
+            player1Out.println("START O");
+            player2Out.println("START X");
+        }
+    }
+
     public static void main(String[] args) {
         new TicTacToeServer();
     }
 }
+
 
 
 
