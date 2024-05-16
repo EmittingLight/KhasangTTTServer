@@ -39,6 +39,8 @@ public class TicTacToe extends JFrame {
                         out.println(index);
                         isMyTurn = false; // Блокируем возможность сделать еще один ход
                         checkForWin();
+                    } else if (!isMyTurn) {
+                        JOptionPane.showMessageDialog(TicTacToe.this, "Это не ваш ход. Пожалуйста, подождите.", "Ошибка", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
