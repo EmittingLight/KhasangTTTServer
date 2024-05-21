@@ -14,6 +14,7 @@ public class TicTacToeServer {
     private PrintWriter player2Out;
     private char[] board = new char[9];
     private Random random = new Random();
+    private char currentPlayer;
 
     public TicTacToeServer() {
         try {
@@ -33,9 +34,11 @@ public class TicTacToeServer {
             if (random.nextBoolean()) {
                 player1Out.println("START X");
                 player2Out.println("START O");
+                currentPlayer = 'X';
             } else {
                 player1Out.println("START O");
                 player2Out.println("START X");
+                currentPlayer = 'O';
             }
 
             runGame();
@@ -47,23 +50,27 @@ public class TicTacToeServer {
     private void runGame() {
         try {
             while (true) {
-                String messageFromPlayer1 = player1In.readLine();
-                if (messageFromPlayer1 != null) {
-                    if (messageFromPlayer1.equals("NEW_GAME")) {
-                        startNewGame();
-                    } else {
-                        processMove(messageFromPlayer1, 'X');
-                        player2Out.println(messageFromPlayer1);
+                if (currentPlayer == 'X') {
+                    String messageFromPlayer1 = player1In.readLine();
+                    if (messageFromPlayer1 != null) {
+                        if (messageFromPlayer1.equals("NEW_GAME")) {
+                            startNewGame();
+                        } else {
+                            processMove(messageFromPlayer1, 'X');
+                            player2Out.println(messageFromPlayer1);
+                            currentPlayer = 'O';
+                        }
                     }
-                }
-
-                String messageFromPlayer2 = player2In.readLine();
-                if (messageFromPlayer2 != null) {
-                    if (messageFromPlayer2.equals("NEW_GAME")) {
-                        startNewGame();
-                    } else {
-                        processMove(messageFromPlayer2, 'O');
-                        player1Out.println(messageFromPlayer2);
+                } else {
+                    String messageFromPlayer2 = player2In.readLine();
+                    if (messageFromPlayer2 != null) {
+                        if (messageFromPlayer2.equals("NEW_GAME")) {
+                            startNewGame();
+                        } else {
+                            processMove(messageFromPlayer2, 'O');
+                            player1Out.println(messageFromPlayer2);
+                            currentPlayer = 'X';
+                        }
                     }
                 }
             }
@@ -126,9 +133,11 @@ public class TicTacToeServer {
         if (random.nextBoolean()) {
             player1Out.println("START X");
             player2Out.println("START O");
+            currentPlayer = 'X';
         } else {
             player1Out.println("START O");
             player2Out.println("START X");
+            currentPlayer = 'O';
         }
     }
 
