@@ -18,7 +18,7 @@ public class TicTacToeServer {
 
     public TicTacToeServer() {
         try {
-            serverSocket = new ServerSocket(5000);
+            serverSocket = new ServerSocket(5050);
             System.out.println("Сервер запущен...");
             player1Socket = serverSocket.accept();
             System.out.println("Игрок 1 подключился.");
@@ -30,17 +30,7 @@ public class TicTacToeServer {
             player2In = new BufferedReader(new InputStreamReader(player2Socket.getInputStream()));
             player2Out = new PrintWriter(player2Socket.getOutputStream(), true);
 
-            // Определяем, кто начинает игру
-            if (random.nextBoolean()) {
-                player1Out.println("START X");
-                player2Out.println("START O");
-                currentPlayer = 'X';
-            } else {
-                player1Out.println("START O");
-                player2Out.println("START X");
-                currentPlayer = 'O';
-            }
-
+            startNewGame();
             runGame();
         } catch (IOException e) {
             e.printStackTrace();
@@ -93,17 +83,20 @@ public class TicTacToeServer {
     }
 
     private String checkForWin() {
-        String[] lines = new String[]{
-                "" + board[0] + board[1] + board[2],
-                "" + board[3] + board[4] + board[5],
-                "" + board[6] + board[7] + board[8],
-                "" + board[0] + board[3] + board[6],
-                "" + board[1] + board[4] + board[7],
-                "" + board[2] + board[5] + board[8],
-                "" + board[0] + board[4] + board[8],
-                "" + board[2] + board[4] + board[6]
+        // Обновленная логика для проверки победы
+        String[][] lines = new String[][]{
+                {"" + board[0] + board[1] + board[2], "012"},
+                {"" + board[3] + board[4] + board[5], "345"},
+                {"" + board[6] + board[7] + board[8], "678"},
+                {"" + board[0] + board[3] + board[6], "036"},
+                {"" + board[1] + board[4] + board[7], "147"},
+                {"" + board[2] + board[5] + board[8], "258"},
+                {"" + board[0] + board[4] + board[8], "048"},
+                {"" + board[2] + board[4] + board[6], "246"}
         };
-        for (String line : lines) {
+        for (String[] lineData : lines) {
+            String line = lineData[0];
+            String indexes = lineData[1];
             if (line.equals("XXX")) {
                 return "X";
             } else if (line.equals("OOO")) {
@@ -112,6 +105,7 @@ public class TicTacToeServer {
         }
         return null;
     }
+
 
     private boolean isBoardFull() {
         for (char c : board) {
@@ -130,6 +124,8 @@ public class TicTacToeServer {
 
     private void startNewGame() {
         resetBoard();
+        player1Out.println("RESET");
+        player2Out.println("RESET");
         if (random.nextBoolean()) {
             player1Out.println("START X");
             player2Out.println("START O");

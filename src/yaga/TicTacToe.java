@@ -67,7 +67,7 @@ public class TicTacToe extends JFrame {
 
     private void connectToServer() {
         try {
-            socket = new Socket("localhost", 5000);
+            socket = new Socket("localhost", 5050);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
             new Thread(new ServerListener()).start();
@@ -92,6 +92,12 @@ public class TicTacToe extends JFrame {
                             showEndGameDialog("Победитель: " + parts[1]);
                         } else if (message.equals("DRAW")) {
                             showEndGameDialog("Ничья!");
+                        } else if (message.equals("RESET")) {
+                            SwingUtilities.invokeLater(new Runnable() {
+                                public void run() {
+                                    resetGame();
+                                }
+                            });
                         } else {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -118,5 +124,4 @@ public class TicTacToe extends JFrame {
         });
     }
 }
-
 
