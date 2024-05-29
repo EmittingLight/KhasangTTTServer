@@ -24,7 +24,7 @@ public class TicTacToe extends JFrame {
         setLayout(new GridLayout(3, 3));
         initializeButtons();
         connectToServer();
-        setResizable(false);  // Фиксируем размер окна
+        setResizable(false);
         setVisible(true);
     }
 
@@ -87,7 +87,7 @@ public class TicTacToe extends JFrame {
                             String[] parts = message.split(" ");
                             mySymbol = parts[1].charAt(0);
                             opponentSymbol = (mySymbol == 'X') ? 'O' : 'X';
-                            isMyTurn = (mySymbol == 'X');
+                            isMyTurn = (mySymbol == 'O'); // Четные начинают
                         } else if (message.startsWith("WINNER")) {
                             String[] parts = message.split(" ");
                             showEndGameDialog("Победитель: " + parts[1]);
@@ -132,6 +132,5 @@ public class TicTacToe extends JFrame {
         });
     }
 }
-
 
 
