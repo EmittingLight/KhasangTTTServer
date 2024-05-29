@@ -116,12 +116,20 @@ public class TicTacToe extends JFrame {
     }
 
     public static void main(String[] args) {
-        String playerName = JOptionPane.showInputDialog(null, "Введите ваше имя:");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new TicTacToe(playerName);
+                while (true) {
+                    String playerName = JOptionPane.showInputDialog(null, "Введите ваше имя:");
+                    if (playerName != null && !playerName.trim().isEmpty()) {
+                        new TicTacToe(playerName);
+                        break;
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Имя не может быть пустым. Пожалуйста, введите ваше имя.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         });
     }
 }
+
 
