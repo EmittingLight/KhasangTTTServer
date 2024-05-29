@@ -24,6 +24,7 @@ public class TicTacToe extends JFrame {
         setLayout(new GridLayout(3, 3));
         initializeButtons();
         connectToServer();
+        setResizable(false);  // Фиксируем размер окна
         setVisible(true);
     }
 
@@ -131,5 +132,6 @@ public class TicTacToe extends JFrame {
         });
     }
 }
+
 
 
