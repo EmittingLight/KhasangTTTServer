@@ -19,7 +19,7 @@ public class TicTacToe extends JFrame {
     public TicTacToe(String playerName) {
         this.playerName = playerName;
         setTitle("Крестики-нолики - " + playerName);
-        setSize(300, 300);
+        setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 3));
         initializeButtons();
