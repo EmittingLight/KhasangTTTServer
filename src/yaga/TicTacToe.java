@@ -50,9 +50,11 @@ public class TicTacToe extends JFrame {
                         if (checkWin(mySymbol)) {
                             JOptionPane.showMessageDialog(TicTacToe.this, playerName + " выиграли символом " + mySymbol + "!", "Победа", JOptionPane.INFORMATION_MESSAGE);
                             out.println("WIN");
+                            clearBoard(); // Очистка поля после победы
                         } else if (checkDraw()) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
                             out.println("DRAW");
+                            clearBoard(); // Очистка поля после ничьей
                         } else {
                             isMyTurn = false;
                         }
@@ -179,14 +181,15 @@ public class TicTacToe extends JFrame {
                                     if (checkWin(opponentSymbol)) {
                                         JOptionPane.showMessageDialog(TicTacToe.this, playerName + " вы проиграли !" +  "Победил символ "+ opponentSymbol, "Поражение", JOptionPane.INFORMATION_MESSAGE);
                                         out.println("LOSE");
+                                        clearBoard(); // Очистка поля после поражения
                                     } else if (checkDraw()) {
                                         JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
                                         out.println("DRAW");
+                                        clearBoard(); // Очистка поля после ничьей
                                     }
                                 }
                             });
-                        }
-                        else if (message.equals("WIN")) {
+                        } else if (message.equals("WIN")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Вы победили!", "Победа", JOptionPane.INFORMATION_MESSAGE);
                         } else if (message.equals("DRAW")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
@@ -216,7 +219,14 @@ public class TicTacToe extends JFrame {
             }
         });
     }
+
+    private void clearBoard() {
+        for (JButton button : buttons) {
+            button.setText("");
+        }
+    }
 }
+
 
 
 
