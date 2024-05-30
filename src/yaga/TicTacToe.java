@@ -172,6 +172,9 @@ public class TicTacToe extends JFrame {
                         } else if (message.startsWith("DECLINED ")) {
                             String opponentName = message.substring(9);
                             JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " отклонил ваше приглашение.", "Приглашение отклонено", JOptionPane.INFORMATION_MESSAGE);
+                        } else if (message.startsWith("CONFIRMED ")) {
+                            String opponentName = message.substring(10);
+                            JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
                         } else if (message.matches("\\d+")) {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -179,7 +182,7 @@ public class TicTacToe extends JFrame {
                                     buttons[index].setText(String.valueOf(opponentSymbol));
                                     isMyTurn = true;
                                     if (checkWin(opponentSymbol)) {
-                                        JOptionPane.showMessageDialog(TicTacToe.this, playerName + " вы проиграли !" +  "Победил символ "+ opponentSymbol, "Поражение", JOptionPane.INFORMATION_MESSAGE);
+                                        JOptionPane.showMessageDialog(TicTacToe.this, playerName + " вы проиграли! Победил символ " + opponentSymbol, "Поражение", JOptionPane.INFORMATION_MESSAGE);
                                         out.println("LOSE");
                                         clearBoard(); // Очистка поля после поражения
                                     } else if (checkDraw()) {
@@ -226,7 +229,6 @@ public class TicTacToe extends JFrame {
         }
     }
 }
-
 
 
 

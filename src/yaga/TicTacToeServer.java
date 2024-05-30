@@ -73,6 +73,7 @@ public class TicTacToeServer {
                                 challengerHandler.awaitingResponse = false;
                                 challengerHandler.out.println("START X");
                                 this.out.println("START O");
+                                challengerHandler.out.println("CONFIRMED " + playerName);
                             }
                         }
                     } else if (message.startsWith("DECLINE ")) {
