@@ -1,8 +1,8 @@
 package yaga;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
 import java.net.*;
 
@@ -15,20 +15,23 @@ public class TicTacToe extends JFrame {
     private BufferedReader in;
     private PrintWriter out;
     private String playerName;
+    private JComboBox<String> playerList;
 
     public TicTacToe(String playerName) {
         this.playerName = playerName;
         setTitle("Крестики-нолики - " + playerName);
         setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(3, 3));
-        initializeButtons();
+        setLayout(new BorderLayout());
+        initializeComponents();
         connectToServer();
         setResizable(false);
         setVisible(true);
     }
 
-    private void initializeButtons() {
+    private void initializeComponents() {
+        JPanel boardPanel = new JPanel();
+        boardPanel.setLayout(new GridLayout(3, 3));
         for (int i = 0; i < 9; i++) {
             final int index = i;
             buttons[i] = new JButton();
@@ -44,26 +47,27 @@ public class TicTacToe extends JFrame {
                     }
                 }
             });
-            add(buttons[i]);
+            boardPanel.add(buttons[i]);
         }
-    }
 
-    private void showEndGameDialog(String message) {
-        int option = JOptionPane.showOptionDialog(this, message + "\nХотите начать новую игру?", "Игра завершена",
-                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Да", "Нет"}, JOptionPane.YES_OPTION);
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BorderLayout());
+        playerList = new JComboBox<>();
+        JButton challengeButton = new JButton("Вызвать на игру");
+        challengeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String opponentName = (String) playerList.getSelectedItem();
+                if (opponentName != null && !opponentName.equals(playerName)) {
+                    out.println("CHALLENGE " + opponentName);
+                }
+            }
+        });
 
-        if (option == JOptionPane.YES_OPTION) {
-            out.println("NEW_GAME");
-            resetGame();
-        } else {
-            System.exit(0);
-        }
-    }
+        controlPanel.add(playerList, BorderLayout.CENTER);
+        controlPanel.add(challengeButton, BorderLayout.EAST);
 
-    private void resetGame() {
-        for (JButton button : buttons) {
-            button.setText("");
-        }
+        add(boardPanel, BorderLayout.CENTER);
+        add(controlPanel, BorderLayout.NORTH);
     }
 
     private void connectToServer() {
@@ -71,10 +75,22 @@ public class TicTacToe extends JFrame {
             socket = new Socket("localhost", 5050);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
+            out.println(playerName);
             new Thread(new ServerListener()).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void updatePlayerList(String[] players) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                playerList.removeAllItems();
+                for (String player : players) {
+                    playerList.addItem(player);
+                }
+            }
+        });
     }
 
     private class ServerListener implements Runnable {
@@ -87,19 +103,11 @@ public class TicTacToe extends JFrame {
                             String[] parts = message.split(" ");
                             mySymbol = parts[1].charAt(0);
                             opponentSymbol = (mySymbol == 'X') ? 'O' : 'X';
-                            isMyTurn = (mySymbol == 'O'); // Четные начинают
-                        } else if (message.startsWith("WINNER")) {
-                            String[] parts = message.split(" ");
-                            showEndGameDialog("Победитель: " + parts[1]);
-                        } else if (message.equals("DRAW")) {
-                            showEndGameDialog("Ничья!");
-                        } else if (message.equals("RESET")) {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                public void run() {
-                                    resetGame();
-                                }
-                            });
-                        } else {
+                            isMyTurn = (mySymbol == 'X'); // X начинает
+                        } else if (message.startsWith("PLAYER_LIST")) {
+                            String[] parts = message.substring(12).split(",");
+                            updatePlayerList(parts);
+                        } else if (message.matches("\\d+")) {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
                                 public void run() {
@@ -132,5 +140,6 @@ public class TicTacToe extends JFrame {
         });
     }
 }
+
 
 
