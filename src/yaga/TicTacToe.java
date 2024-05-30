@@ -93,6 +93,29 @@ public class TicTacToe extends JFrame {
         });
     }
 
+    private void showInvitationDialog(String challengerName) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                int option = JOptionPane.showOptionDialog(
+                        TicTacToe.this,
+                        challengerName + " приглашает вас на игру. Принять?",
+                        "Приглашение",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new Object[]{"Принять", "Отклонить"},
+                        JOptionPane.YES_OPTION
+                );
+
+                if (option == JOptionPane.YES_OPTION) {
+                    out.println("ACCEPT " + challengerName);
+                } else {
+                    out.println("DECLINE " + challengerName);
+                }
+            }
+        });
+    }
+
     private class ServerListener implements Runnable {
         public void run() {
             try {
@@ -107,6 +130,12 @@ public class TicTacToe extends JFrame {
                         } else if (message.startsWith("PLAYER_LIST")) {
                             String[] parts = message.substring(12).split(",");
                             updatePlayerList(parts);
+                        } else if (message.startsWith("INVITATION ")) {
+                            String challengerName = message.substring(11);
+                            showInvitationDialog(challengerName);
+                        } else if (message.startsWith("DECLINED ")) {
+                            String opponentName = message.substring(9);
+                            JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " отклонил ваше приглашение.", "Приглашение отклонено", JOptionPane.INFORMATION_MESSAGE);
                         } else if (message.matches("\\d+")) {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {

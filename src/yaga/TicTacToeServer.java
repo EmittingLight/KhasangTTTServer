@@ -29,6 +29,7 @@ public class TicTacToeServer {
         private PrintWriter out;
         private String playerName;
         private ClientHandler opponent;
+        private boolean awaitingResponse = false;
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
@@ -53,13 +54,35 @@ public class TicTacToeServer {
                         String opponentName = message.substring(10);
                         synchronized (playerMap) {
                             ClientHandler opponentHandler = playerMap.get(opponentName);
-                            if (opponentHandler != null) {
-                                this.opponent = opponentHandler;
-                                opponentHandler.opponent = this;
-                                out.println("START X");
-                                opponentHandler.out.println("START O");
+                            if (opponentHandler != null && !opponentHandler.awaitingResponse) {
+                                this.awaitingResponse = true;
+                                opponentHandler.awaitingResponse = true;
+                                opponentHandler.out.println("INVITATION " + playerName);
                             } else {
-                                out.println("ERROR: Player not found");
+                                out.println("ERROR: Player not found or already in a game");
+                            }
+                        }
+                    } else if (message.startsWith("ACCEPT ")) {
+                        String challengerName = message.substring(7);
+                        synchronized (playerMap) {
+                            ClientHandler challengerHandler = playerMap.get(challengerName);
+                            if (challengerHandler != null && challengerHandler.awaitingResponse) {
+                                this.opponent = challengerHandler;
+                                challengerHandler.opponent = this;
+                                this.awaitingResponse = false;
+                                challengerHandler.awaitingResponse = false;
+                                challengerHandler.out.println("START X");
+                                this.out.println("START O");
+                            }
+                        }
+                    } else if (message.startsWith("DECLINE ")) {
+                        String challengerName = message.substring(8);
+                        synchronized (playerMap) {
+                            ClientHandler challengerHandler = playerMap.get(challengerName);
+                            if (challengerHandler != null && challengerHandler.awaitingResponse) {
+                                this.awaitingResponse = false;
+                                challengerHandler.awaitingResponse = false;
+                                challengerHandler.out.println("DECLINED " + playerName);
                             }
                         }
                     } else if (opponent != null && message.matches("\\d+")) {
@@ -92,6 +115,7 @@ public class TicTacToeServer {
         }
     }
 }
+
 
 
 
