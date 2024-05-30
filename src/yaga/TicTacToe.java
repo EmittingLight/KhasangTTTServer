@@ -17,6 +17,12 @@ public class TicTacToe extends JFrame {
     private String playerName;
     private JComboBox<String> playerList;
 
+    private static final int[][] WIN_COMBINATIONS = {
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // Горизонтальные
+            {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // Вертикальные
+            {0, 4, 8}, {2, 4, 6} // Диагональные
+    };
+
     public TicTacToe(String playerName) {
         this.playerName = playerName;
         setTitle("Крестики-нолики - " + playerName);
@@ -38,10 +44,18 @@ public class TicTacToe extends JFrame {
             buttons[i].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 50));
             buttons[i].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if (isMyTurn && buttons[index].getText().equals("")) {
+                    if (isMyTurn && buttons[index].getText().isEmpty()) {
                         buttons[index].setText(String.valueOf(mySymbol));
                         out.println(index);
-                        isMyTurn = false;
+                        if (checkWin(mySymbol)) {
+                            JOptionPane.showMessageDialog(TicTacToe.this, playerName + " выиграли символом " + mySymbol + "!", "Победа", JOptionPane.INFORMATION_MESSAGE);
+                            out.println("WIN");
+                        } else if (checkDraw()) {
+                            JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
+                            out.println("DRAW");
+                        } else {
+                            isMyTurn = false;
+                        }
                     } else if (!isMyTurn) {
                         JOptionPane.showMessageDialog(TicTacToe.this, "Это не ваш ход. Пожалуйста, подождите.", "Ошибка", JOptionPane.ERROR_MESSAGE);
                     }
@@ -116,6 +130,26 @@ public class TicTacToe extends JFrame {
         });
     }
 
+    private boolean checkWin(char symbol) {
+        for (int[] combination : WIN_COMBINATIONS) {
+            if (buttons[combination[0]].getText().equals(String.valueOf(symbol)) &&
+                    buttons[combination[1]].getText().equals(String.valueOf(symbol)) &&
+                    buttons[combination[2]].getText().equals(String.valueOf(symbol))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkDraw() {
+        for (JButton button : buttons) {
+            if (button.getText().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private class ServerListener implements Runnable {
         public void run() {
             try {
@@ -142,8 +176,22 @@ public class TicTacToe extends JFrame {
                                 public void run() {
                                     buttons[index].setText(String.valueOf(opponentSymbol));
                                     isMyTurn = true;
+                                    if (checkWin(opponentSymbol)) {
+                                        JOptionPane.showMessageDialog(TicTacToe.this, playerName + " вы проиграли !" +  "Победил символ "+ opponentSymbol, "Поражение", JOptionPane.INFORMATION_MESSAGE);
+                                        out.println("LOSE");
+                                    } else if (checkDraw()) {
+                                        JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
+                                        out.println("DRAW");
+                                    }
                                 }
                             });
+                        }
+                        else if (message.equals("WIN")) {
+                            JOptionPane.showMessageDialog(TicTacToe.this, "Вы победили!", "Победа", JOptionPane.INFORMATION_MESSAGE);
+                        } else if (message.equals("DRAW")) {
+                            JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
+                        } else if (message.equals("LOSE")) {
+                            JOptionPane.showMessageDialog(TicTacToe.this, "Вы проиграли!", "Поражение", JOptionPane.INFORMATION_MESSAGE);
                         }
                     }
                 }
@@ -169,6 +217,10 @@ public class TicTacToe extends JFrame {
         });
     }
 }
+
+
+
+
 
 
 
