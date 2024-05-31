@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TicTacToe extends JFrame {
     private JButton[] buttons = new JButton[9];
@@ -16,6 +18,7 @@ public class TicTacToe extends JFrame {
     private PrintWriter out;
     private String playerName;
     private JComboBox<String> playerList;
+    private Set<String> inGamePlayers = new HashSet<>();
 
     private static final int[][] WIN_COMBINATIONS = {
             {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // Горизонтальные
@@ -74,10 +77,10 @@ public class TicTacToe extends JFrame {
         challengeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String opponentName = (String) playerList.getSelectedItem();
-                if (opponentName != null && !opponentName.equals(playerName) && !opponentName.equals("Нажмите, чтобы выбрать игрока")) {
+                if (opponentName != null && !opponentName.equals(playerName) && !opponentName.equals("Нажмите, чтобы выбрать игрока") && !inGamePlayers.contains(opponentName)) {
                     out.println("CHALLENGE " + opponentName);
                 } else {
-                    JOptionPane.showMessageDialog(TicTacToe.this, "Вы не можете выбрать сами себя или начальный элемент.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(TicTacToe.this, "Вы не можете выбрать сами себя, начальный элемент или игрока, который уже в игре.", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -107,12 +110,26 @@ public class TicTacToe extends JFrame {
                 playerList.removeAllItems();
                 playerList.addItem("Нажмите, чтобы выбрать игрока"); // Снова добавляем начальный элемент
                 for (String player : players) {
-                    if (!player.equals(playerName)) {
+                    if (!player.equals(playerName) && !inGamePlayers.contains(player)) {
                         playerList.addItem(player);
                     }
                 }
             }
         });
+    }
+
+    private void addInGamePlayer(String player) {
+        inGamePlayers.add(player);
+        requestPlayerListUpdate();
+    }
+
+    private void removeInGamePlayer(String player) {
+        inGamePlayers.remove(player);
+        requestPlayerListUpdate();
+    }
+
+    private void requestPlayerListUpdate() {
+        out.println("REQUEST_PLAYER_LIST");
     }
 
     private void showInvitationDialog(String challengerName) {
@@ -131,6 +148,7 @@ public class TicTacToe extends JFrame {
 
                 if (option == JOptionPane.YES_OPTION) {
                     out.println("ACCEPT " + challengerName);
+                    addInGamePlayer(challengerName);
                 } else {
                     out.println("DECLINE " + challengerName);
                 }
@@ -192,6 +210,7 @@ public class TicTacToe extends JFrame {
                         } else if (message.startsWith("CONFIRMED ")) {
                             String opponentName = message.substring(10);
                             JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
+                            addInGamePlayer(opponentName);
                         } else if (message.matches("\\d+")) {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -211,10 +230,13 @@ public class TicTacToe extends JFrame {
                             });
                         } else if (message.equals("WIN")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Вы победили!", "Победа", JOptionPane.INFORMATION_MESSAGE);
+                            removeInGamePlayer(playerName);
                         } else if (message.equals("DRAW")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
+                            removeInGamePlayer(playerName);
                         } else if (message.equals("LOSE")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Вы проиграли!", "Поражение", JOptionPane.INFORMATION_MESSAGE);
+                            removeInGamePlayer(playerName);
                         }
                     }
                 }
@@ -223,7 +245,6 @@ public class TicTacToe extends JFrame {
             }
         }
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {

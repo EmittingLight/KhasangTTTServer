@@ -74,6 +74,7 @@ public class TicTacToeServer {
                                 challengerHandler.out.println("START X");
                                 this.out.println("START O");
                                 challengerHandler.out.println("CONFIRMED " + playerName);
+                                sendPlayerList(); // Обновление списка игроков
                             }
                         }
                     } else if (message.startsWith("DECLINE ")) {
@@ -84,8 +85,13 @@ public class TicTacToeServer {
                                 this.awaitingResponse = false;
                                 challengerHandler.awaitingResponse = false;
                                 challengerHandler.out.println("DECLINED " + playerName);
+                                sendPlayerList(); // Обновление списка игроков
                             }
                         }
+                    } else if (message.equals("WIN") || message.equals("LOSE") || message.equals("DRAW")) {
+                        // Окончание игры
+                        this.opponent = null;
+                        sendPlayerList(); // Обновление списка игроков
                     } else if (opponent != null && message.matches("\\d+")) {
                         opponent.out.println(message);
                     }
@@ -108,11 +114,23 @@ public class TicTacToeServer {
 
         private void sendPlayerList() {
             synchronized (playerMap) {
-                String playerList = "PLAYER_LIST " + String.join(",", playerMap.keySet());
+                String playerList = "PLAYER_LIST " + String.join(",", getAvailablePlayers());
                 for (ClientHandler handler : clientHandlers) {
                     handler.out.println(playerList);
                 }
             }
+        }
+
+        private Set<String> getAvailablePlayers() {
+            Set<String> availablePlayers = new HashSet<>();
+            synchronized (playerMap) {
+                for (Map.Entry<String, ClientHandler> entry : playerMap.entrySet()) {
+                    if (entry.getValue().opponent == null) {
+                        availablePlayers.add(entry.getKey());
+                    }
+                }
+            }
+            return availablePlayers;
         }
     }
 }
