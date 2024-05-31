@@ -69,14 +69,15 @@ public class TicTacToe extends JFrame {
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BorderLayout());
         playerList = new JComboBox<>();
+        playerList.addItem("Нажмите, чтобы выбрать игрока"); // Начальный элемент
         JButton challengeButton = new JButton("Приглашение на игру");
         challengeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String opponentName = (String) playerList.getSelectedItem();
-                if (opponentName != null && !opponentName.equals(playerName)) {
+                if (opponentName != null && !opponentName.equals(playerName) && !opponentName.equals("Нажмите, чтобы выбрать игрока")) {
                     out.println("CHALLENGE " + opponentName);
                 } else {
-                    JOptionPane.showMessageDialog(TicTacToe.this, "Вы не можете выбрать сами себя.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(TicTacToe.this, "Вы не можете выбрать сами себя или начальный элемент.", "Ошибка", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -104,6 +105,7 @@ public class TicTacToe extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 playerList.removeAllItems();
+                playerList.addItem("Нажмите, чтобы выбрать игрока"); // Снова добавляем начальный элемент
                 for (String player : players) {
                     if (!player.equals(playerName)) {
                         playerList.addItem(player);
