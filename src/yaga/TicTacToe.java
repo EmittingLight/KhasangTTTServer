@@ -169,6 +169,17 @@ public class TicTacToe extends JFrame {
                             mySymbol = parts[1].charAt(0);
                             opponentSymbol = (mySymbol == 'X') ? 'O' : 'X';
                             isMyTurn = (mySymbol == 'X'); // X начинает
+
+                            // Добавлено сообщение о том, кто ходит первым
+                            String firstTurnMessage = isMyTurn
+                                    ? "Вы ходите первым, так как играете за X."
+                                    : "Ваш противник ходит первым, так как он играет за X.";
+                            JOptionPane.showMessageDialog(
+                                    TicTacToe.this,
+                                    firstTurnMessage,
+                                    "Начало игры",
+                                    JOptionPane.INFORMATION_MESSAGE
+                            );
                         } else if (message.startsWith("PLAYER_LIST")) {
                             String[] parts = message.substring(12).split(",");
                             updatePlayerList(parts);
@@ -212,6 +223,7 @@ public class TicTacToe extends JFrame {
             }
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
