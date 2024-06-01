@@ -266,6 +266,26 @@ public class TicTacToe extends JFrame {
         for (JButton button : buttons) {
             button.setText("");
         }
+
+        int option = JOptionPane.showOptionDialog(
+                TicTacToe.this,
+                "Хотите начать новую игру?",
+                "Новая игра",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new Object[]{"Да", "Отмена"},
+                JOptionPane.YES_OPTION
+        );
+
+        if (option == JOptionPane.YES_OPTION) {
+            out.println("NEW_GAME");
+            // Не устанавливаем isMyTurn в true здесь
+        } else {
+            // Очистка списка игроков и запрос обновления
+            inGamePlayers.clear();
+            requestPlayerListUpdate();
+        }
     }
 }
 
