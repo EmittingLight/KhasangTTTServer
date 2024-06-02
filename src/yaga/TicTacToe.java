@@ -156,6 +156,7 @@ public class TicTacToe extends JFrame {
         });
     }
 
+
     private boolean checkWin(char symbol) {
         for (int[] combination : WIN_COMBINATIONS) {
             if (buttons[combination[0]].getText().equals(String.valueOf(symbol)) &&
@@ -207,7 +208,10 @@ public class TicTacToe extends JFrame {
                         } else if (message.startsWith("DECLINED ")) {
                             String opponentName = message.substring(9);
                             JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " отклонил ваше приглашение.", "Приглашение отклонено", JOptionPane.INFORMATION_MESSAGE);
-                        } else if (message.startsWith("CONFIRMED ")) {
+                            // Если игрок отклонил приглашение, сброс игры для обоих игроков
+                            inGamePlayers.remove(opponentName); // Удаляем отклонившего игрока из списка
+                            clearBoard(); // Сброс игры для текущего игрока
+                    } else if (message.startsWith("CONFIRMED ")) {
                             String opponentName = message.substring(10);
                             JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
                             addInGamePlayer(opponentName);
