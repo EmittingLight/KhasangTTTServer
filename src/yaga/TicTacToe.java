@@ -281,10 +281,28 @@ public class TicTacToe extends JFrame {
         if (option == JOptionPane.YES_OPTION) {
             out.println("NEW_GAME");
             // Не устанавливаем isMyTurn в true здесь
-        } else {
+        } else if (option == JOptionPane.NO_OPTION || option == JOptionPane.CLOSED_OPTION) {
             // Очистка списка игроков и запрос обновления
             inGamePlayers.clear();
             requestPlayerListUpdate();
+            resetGame(); // Запуск новой игры
+        }
+    }
+
+    private void resetGame() {
+        isMyTurn = false;
+        // Другие параметры, которые нужно сбросить, если есть
+        connectToServer(); // Подключение к серверу заново
+        // Если диалоговое окно "Хотите начать новую игру?" открыто, закрыть его
+        Window[] windows = Window.getWindows();
+        for (Window window : windows) {
+            if (window instanceof JDialog) {
+                JDialog dialog = (JDialog) window;
+                if (dialog.getTitle().equals("Новая игра")) {
+                    dialog.dispose();
+                    break;
+                }
+            }
         }
     }
 }
