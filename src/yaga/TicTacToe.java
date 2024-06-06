@@ -207,13 +207,12 @@ public class TicTacToe extends JFrame {
                         } else if (message.startsWith("DECLINED ")) {
                             String opponentName = message.substring(9);
                             JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " отклонил ваше приглашение.", "Приглашение отклонено", JOptionPane.INFORMATION_MESSAGE);
-                            // Если игрок отклонил приглашение, сброс игры для обоих игроков
                             inGamePlayers.remove(opponentName); // Удаляем отклонившего игрока из списка
                             clearBoard(); // Сброс игры для текущего игрока
                         } else if (message.startsWith("CONFIRMED ")) {
                             String opponentName = message.substring(10);
-                            JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
-                            addInGamePlayer(opponentName);
+                            JOptionPane.showMessageDialog(TicTacToe.this, opponentName + "принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
+                                    addInGamePlayer(opponentName);
                         } else if (message.matches("\\d+")) {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -240,6 +239,10 @@ public class TicTacToe extends JFrame {
                         } else if (message.equals("LOSE")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Вы проиграли!", "Поражение", JOptionPane.INFORMATION_MESSAGE);
                             removeInGamePlayer(playerName);
+                        } else if (message.equals("GAME_ENDED")) {
+                            JOptionPane.showMessageDialog(TicTacToe.this, "Игра закончена, так как оппонент отказался продолжать игру.", "Игра завершена", JOptionPane.INFORMATION_MESSAGE);
+                            removeInGamePlayer(playerName);
+                            clearBoard();
                         }
                     }
                 }
@@ -248,6 +251,7 @@ public class TicTacToe extends JFrame {
             }
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -282,14 +286,14 @@ public class TicTacToe extends JFrame {
 
         if (option == JOptionPane.YES_OPTION) {
             out.println("NEW_GAME");
-            // Не устанавливаем isMyTurn в true здесь
         } else if (option == JOptionPane.NO_OPTION || option == JOptionPane.CLOSED_OPTION) {
-            // Очистка списка игроков и запрос обновления
+            out.println("END_GAME");
             inGamePlayers.clear();
             requestPlayerListUpdate();
-            resetGame(); // Запуск новой игры
+            resetGame();
         }
     }
+
 
     private void resetGame() {
         isMyTurn = false;

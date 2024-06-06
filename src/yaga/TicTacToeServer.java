@@ -87,6 +87,8 @@ public class TicTacToeServer {
                                 challengerHandler.out.println("DECLINED " + playerName);
                             }
                         }
+                    } else if (message.equals("END_GAME")) {
+                        endGame();
                     } else if (opponent != null && message.matches("\\d+")) {
                         opponent.out.println(message);
                     } else if (message.equals("REQUEST_PLAYER_LIST")) {
@@ -109,6 +111,16 @@ public class TicTacToeServer {
             }
         }
 
+        private void endGame() {
+            if (opponent != null) {
+                opponent.out.println("GAME_ENDED");
+                this.out.println("GAME_ENDED");
+                opponent.opponent = null;
+                this.opponent = null;
+            }
+            sendPlayerList();
+        }
+
         private void sendPlayerList() {
             synchronized (playerMap) {
                 List<String> availablePlayers = new ArrayList<>();
@@ -126,6 +138,7 @@ public class TicTacToeServer {
         }
     }
 }
+
 
 
 
