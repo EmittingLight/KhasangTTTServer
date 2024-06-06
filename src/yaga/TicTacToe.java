@@ -104,6 +104,19 @@ public class TicTacToe extends JFrame {
         }
     }
 
+    private void disconnectFromServer() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                out.println("DISCONNECT");
+                socket.close();
+                in.close();
+                out.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void updatePlayerList(String[] players) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -211,8 +224,8 @@ public class TicTacToe extends JFrame {
                             clearBoard(); // Сброс игры для текущего игрока
                         } else if (message.startsWith("CONFIRMED ")) {
                             String opponentName = message.substring(10);
-                            JOptionPane.showMessageDialog(TicTacToe.this, opponentName + "принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
-                                    addInGamePlayer(opponentName);
+                            JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
+                            addInGamePlayer(opponentName);
                         } else if (message.matches("\\d+")) {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -243,6 +256,8 @@ public class TicTacToe extends JFrame {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Игра закончена, так как оппонент отказался продолжать игру.", "Игра завершена", JOptionPane.INFORMATION_MESSAGE);
                             removeInGamePlayer(playerName);
                             clearBoard();
+                            disconnectFromServer();
+                            resetGame();
                         }
                     }
                 }
@@ -251,7 +266,6 @@ public class TicTacToe extends JFrame {
             }
         }
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -290,15 +304,21 @@ public class TicTacToe extends JFrame {
             out.println("END_GAME");
             inGamePlayers.clear();
             requestPlayerListUpdate();
+            disconnectFromServer();
             resetGame();
         }
     }
 
-
     private void resetGame() {
         isMyTurn = false;
-        // Другие параметры, которые нужно сбросить, если есть
-        connectToServer(); // Подключение к серверу заново
+        mySymbol = '\0';
+        opponentSymbol = '\0';
+        inGamePlayers.clear();
+        requestPlayerListUpdate();
+
+        // Подключение к серверу заново
+        connectToServer();
+
         // Если диалоговое окно "Хотите начать новую игру?" открыто, закрыть его
         Window[] windows = Window.getWindows();
         for (Window window : windows) {
