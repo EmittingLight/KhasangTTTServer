@@ -74,6 +74,7 @@ public class TicTacToeServer {
                                 challengerHandler.out.println("START X");
                                 this.out.println("START O");
                                 challengerHandler.out.println("CONFIRMED " + playerName);
+                                sendPlayerList();  // обновить список игроков
                             }
                         }
                     } else if (message.startsWith("DECLINE ")) {
@@ -88,6 +89,8 @@ public class TicTacToeServer {
                         }
                     } else if (opponent != null && message.matches("\\d+")) {
                         opponent.out.println(message);
+                    } else if (message.equals("REQUEST_PLAYER_LIST")) {
+                        sendPlayerList();
                     }
                 }
             } catch (IOException e) {
@@ -108,7 +111,14 @@ public class TicTacToeServer {
 
         private void sendPlayerList() {
             synchronized (playerMap) {
-                String playerList = "PLAYER_LIST " + String.join(",", playerMap.keySet());
+                List<String> availablePlayers = new ArrayList<>();
+                for (String player : playerMap.keySet()) {
+                    ClientHandler handler = playerMap.get(player);
+                    if (handler.opponent == null) {
+                        availablePlayers.add(player);
+                    }
+                }
+                String playerList = "PLAYER_LIST " + String.join(",", availablePlayers);
                 for (ClientHandler handler : clientHandlers) {
                     handler.out.println(playerList);
                 }
@@ -116,7 +126,6 @@ public class TicTacToeServer {
         }
     }
 }
-
 
 
 
