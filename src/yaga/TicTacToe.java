@@ -133,17 +133,24 @@ public class TicTacToe extends JFrame {
 
     private void addInGamePlayer(String player) {
         inGamePlayers.add(player);
+        playerList.setEnabled(false); // Заблокировать список
         requestPlayerListUpdate();
     }
 
     private void removeInGamePlayer(String player) {
         inGamePlayers.remove(player);
-        requestPlayerListUpdate();
+        clearBoard(); // Сначала очищаем поле
+        requestPlayerListUpdate(); // Затем обновляем список игроков
     }
 
+
     private void requestPlayerListUpdate() {
+        if (!playerList.isEnabled()) {
+            return; // Если playerList уже заблокирован, выходим из метода
+        }
         out.println("REQUEST_PLAYER_LIST");
     }
+
 
     private void showInvitationDialog(String challengerName) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -315,6 +322,9 @@ public class TicTacToe extends JFrame {
         opponentSymbol = '\0';
         inGamePlayers.clear();
         requestPlayerListUpdate();
+
+        // Разблокировка выпадающего списка
+        playerList.setEnabled(true);
 
         // Подключение к серверу заново
         connectToServer();
