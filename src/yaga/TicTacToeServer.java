@@ -3,11 +3,12 @@ package yaga;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TicTacToeServer {
     private static final int PORT = 5050;
     private static Set<ClientHandler> clientHandlers = new HashSet<>();
-    private static Map<String, ClientHandler> playerMap = new HashMap<>();
+    private static Map<String, ClientHandler> playerMap = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -30,6 +31,8 @@ public class TicTacToeServer {
         private String playerName;
         private ClientHandler opponent;
         private boolean awaitingResponse = false;
+        private static final String CHALLENGE_PREFIX = "CHALLENGE ";
+        private static final String ACCEPT_PREFIX = "ACCEPT ";
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
@@ -43,49 +46,41 @@ public class TicTacToeServer {
 
                 out.println("ENTER_NAME");
                 playerName = in.readLine();
-                synchronized (playerMap) {
-                    playerMap.put(playerName, this);
-                }
+                playerMap.put(playerName, this);
                 sendPlayerList();
 
                 String message;
                 while ((message = in.readLine()) != null) {
-                    if (message.startsWith("CHALLENGE ")) {
-                        String opponentName = message.substring(10);
-                        synchronized (playerMap) {
-                            ClientHandler opponentHandler = playerMap.get(opponentName);
-                            if (opponentHandler != null && !opponentHandler.awaitingResponse) {
-                                this.awaitingResponse = true;
-                                opponentHandler.awaitingResponse = true;
-                                opponentHandler.out.println("INVITATION " + playerName);
-                            } else {
-                                out.println("ERROR: Player not found or already in a game");
-                            }
+                    if (message.startsWith(CHALLENGE_PREFIX)) {
+                        String opponentName = message.substring(CHALLENGE_PREFIX.length());
+                        ClientHandler opponentHandler = playerMap.get(opponentName);
+                        if (opponentHandler != null && !opponentHandler.awaitingResponse) {
+                            this.awaitingResponse = true;
+                            opponentHandler.awaitingResponse = true;
+                            opponentHandler.out.println("INVITATION " + playerName);
+                        } else {
+                            out.println("ERROR: Player not found or already in a game");
                         }
-                    } else if (message.startsWith("ACCEPT ")) {
-                        String challengerName = message.substring(7);
-                        synchronized (playerMap) {
-                            ClientHandler challengerHandler = playerMap.get(challengerName);
-                            if (challengerHandler != null && challengerHandler.awaitingResponse) {
-                                this.opponent = challengerHandler;
-                                challengerHandler.opponent = this;
-                                this.awaitingResponse = false;
-                                challengerHandler.awaitingResponse = false;
-                                challengerHandler.out.println("START X");
-                                this.out.println("START O");
-                                challengerHandler.out.println("CONFIRMED " + playerName);
-                                sendPlayerList();  // обновить список игроков
-                            }
+                    } else if (message.startsWith(ACCEPT_PREFIX)) {
+                        String challengerName = message.substring(ACCEPT_PREFIX.length());
+                        ClientHandler challengerHandler = playerMap.get(challengerName);
+                        if (challengerHandler != null && challengerHandler.awaitingResponse) {
+                            this.opponent = challengerHandler;
+                            challengerHandler.opponent = this;
+                            this.awaitingResponse = false;
+                            challengerHandler.awaitingResponse = false;
+                            challengerHandler.out.println("START X");
+                            this.out.println("START O");
+                            challengerHandler.out.println("CONFIRMED " + playerName);
+                            sendPlayerList();  // обновить список игроков
                         }
                     } else if (message.startsWith("DECLINE ")) {
                         String challengerName = message.substring(8);
-                        synchronized (playerMap) {
-                            ClientHandler challengerHandler = playerMap.get(challengerName);
-                            if (challengerHandler != null && challengerHandler.awaitingResponse) {
-                                this.awaitingResponse = false;
-                                challengerHandler.awaitingResponse = false;
-                                challengerHandler.out.println("DECLINED " + playerName);
-                            }
+                        ClientHandler challengerHandler = playerMap.get(challengerName);
+                        if (challengerHandler != null && challengerHandler.awaitingResponse) {
+                            this.awaitingResponse = false;
+                            challengerHandler.awaitingResponse = false;
+                            challengerHandler.out.println("DECLINED " + playerName);
                         }
                     } else if (message.equals("END_GAME")) {
                         endGame();
@@ -103,9 +98,7 @@ public class TicTacToeServer {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                synchronized (playerMap) {
-                    playerMap.remove(playerName);
-                }
+                playerMap.remove(playerName);
                 clientHandlers.remove(this);
                 sendPlayerList();
             }
@@ -122,22 +115,21 @@ public class TicTacToeServer {
         }
 
         private void sendPlayerList() {
-            synchronized (playerMap) {
-                List<String> availablePlayers = new ArrayList<>();
-                for (String player : playerMap.keySet()) {
-                    ClientHandler handler = playerMap.get(player);
-                    if (handler.opponent == null) {
-                        availablePlayers.add(player);
-                    }
+            List<String> availablePlayers = new ArrayList<>();
+            for (String player : playerMap.keySet()) {
+                ClientHandler handler = playerMap.get(player);
+                if (handler.opponent == null) {
+                    availablePlayers.add(player);
                 }
-                String playerList = "PLAYER_LIST " + String.join(",", availablePlayers);
-                for (ClientHandler handler : clientHandlers) {
-                    handler.out.println(playerList);
-                }
+            }
+            String playerList = "PLAYER_LIST " + String.join(",", availablePlayers);
+            for (ClientHandler handler : clientHandlers) {
+                handler.out.println(playerList);
             }
         }
     }
 }
+
 
 
 

@@ -115,6 +115,8 @@ public class TicTacToe extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // Обновить список игроков
+        requestPlayerListUpdate();
     }
 
     private void updatePlayerList(String[] players) {
@@ -139,8 +141,8 @@ public class TicTacToe extends JFrame {
 
     private void removeInGamePlayer(String player) {
         inGamePlayers.remove(player);
-        clearBoard(); // Сначала очищаем поле
-        requestPlayerListUpdate(); // Затем обновляем список игроков
+        clearBoard(); // Очистка поля
+        requestPlayerListUpdate(); // Обновление списка игроков
     }
 
 
