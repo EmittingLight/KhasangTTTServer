@@ -53,11 +53,11 @@ public class TicTacToe extends JFrame {
                         if (checkWin(mySymbol)) {
                             JOptionPane.showMessageDialog(TicTacToe.this, playerName + " выиграли символом " + mySymbol + "!", "Победа", JOptionPane.INFORMATION_MESSAGE);
                             out.println("WIN");
-                            clearBoard(); // Очистка поля после победы
+                            endGame();
                         } else if (checkDraw()) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
                             out.println("DRAW");
-                            clearBoard(); // Очистка поля после ничьей
+                            endGame();
                         } else {
                             isMyTurn = false;
                         }
@@ -145,14 +145,12 @@ public class TicTacToe extends JFrame {
         requestPlayerListUpdate(); // Обновление списка игроков
     }
 
-
     private void requestPlayerListUpdate() {
         if (!playerList.isEnabled()) {
             return; // Если playerList уже заблокирован, выходим из метода
         }
         out.println("REQUEST_PLAYER_LIST");
     }
-
 
     private void showInvitationDialog(String challengerName) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -244,11 +242,11 @@ public class TicTacToe extends JFrame {
                                     if (checkWin(opponentSymbol)) {
                                         JOptionPane.showMessageDialog(TicTacToe.this, playerName + " вы проиграли! Победил символ " + opponentSymbol, "Поражение", JOptionPane.INFORMATION_MESSAGE);
                                         out.println("LOSE");
-                                        clearBoard(); // Очистка поля после поражения
+                                        endGame();
                                     } else if (checkDraw()) {
                                         JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
                                         out.println("DRAW");
-                                        clearBoard(); // Очистка поля после ничьей
+                                        endGame();
                                     }
                                 }
                             });
@@ -264,7 +262,6 @@ public class TicTacToe extends JFrame {
                         } else if (message.equals("GAME_ENDED")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Игра закончена, так как оппонент отказался продолжать игру.", "Игра завершена", JOptionPane.INFORMATION_MESSAGE);
                             removeInGamePlayer(playerName);
-                            clearBoard();
                             disconnectFromServer();
                             resetGame();
                         }
@@ -273,6 +270,30 @@ public class TicTacToe extends JFrame {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void endGame() {
+        clearBoard(); // Очистка поля
+        int option = JOptionPane.showOptionDialog(
+                TicTacToe.this,
+                "Хотите начать новую игру?",
+                "Новая игра",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new Object[]{"Да", "Отмена"},
+                JOptionPane.YES_OPTION
+        );
+
+        if (option == JOptionPane.YES_OPTION) {
+            out.println("NEW_GAME");
+        } else if (option == JOptionPane.NO_OPTION || option == JOptionPane.CLOSED_OPTION) {
+            out.println("END_GAME");
+            inGamePlayers.clear();
+            requestPlayerListUpdate();
+            disconnectFromServer();
+            resetGame();
         }
     }
 
@@ -294,27 +315,6 @@ public class TicTacToe extends JFrame {
     private void clearBoard() {
         for (JButton button : buttons) {
             button.setText("");
-        }
-
-        int option = JOptionPane.showOptionDialog(
-                TicTacToe.this,
-                "Хотите начать новую игру?",
-                "Новая игра",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new Object[]{"Да", "Отмена"},
-                JOptionPane.YES_OPTION
-        );
-
-        if (option == JOptionPane.YES_OPTION) {
-            out.println("NEW_GAME");
-        } else if (option == JOptionPane.NO_OPTION || option == JOptionPane.CLOSED_OPTION) {
-            out.println("END_GAME");
-            inGamePlayers.clear();
-            requestPlayerListUpdate();
-            disconnectFromServer();
-            resetGame();
         }
     }
 
