@@ -31,6 +31,11 @@ public class TicTacToeServer {
         private String playerName;
         private ClientHandler opponent;
         private boolean awaitingResponse = false;
+        private boolean awaitingConfirmation = false; // Новый флаг
+        private boolean confirmedNewGame = false; // Флаг для подтверждения новой игры
+        private boolean isMyTurn = false; // Добавлено
+        private char mySymbol;
+        private char opponentSymbol;
         private static final String CHALLENGE_PREFIX = "CHALLENGE ";
         private static final String ACCEPT_PREFIX = "ACCEPT ";
 
@@ -69,11 +74,15 @@ public class TicTacToeServer {
                             challengerHandler.opponent = this;
                             this.awaitingResponse = false;
                             challengerHandler.awaitingResponse = false;
+                            this.mySymbol = 'O';
+                            this.opponentSymbol = 'X';
+                            challengerHandler.mySymbol = 'X';
+                            challengerHandler.opponentSymbol = 'O';
                             challengerHandler.out.println("START X");
                             this.out.println("START O");
                             challengerHandler.out.println("CONFIRMED " + playerName);
-                            this.out.println("CONFIRMED " + challengerName);  // Отправляем сообщение подтверждения обоим игрокам
-                            sendPlayerList();  // обновить список игроков
+                            this.out.println("CONFIRMED " + challengerName);
+                            sendPlayerList();
                         }
                     } else if (message.startsWith("DECLINE ")) {
                         String challengerName = message.substring(8);
@@ -83,10 +92,22 @@ public class TicTacToeServer {
                             challengerHandler.awaitingResponse = false;
                             challengerHandler.out.println("DECLINED " + playerName);
                         }
+                    } else if (message.equals("NEW_GAME")) {
+                        if (opponent != null) {
+                            this.awaitingConfirmation = true;
+                            opponent.awaitingConfirmation = true;
+                            this.confirmedNewGame = true; // Подтверждаем готовность начать новую игру
+                            if (opponent.confirmedNewGame) {
+                                this.out.println("START " + mySymbol);
+                                opponent.out.println("START " + opponentSymbol);
+                            }
+                        }
                     } else if (message.equals("END_GAME")) {
                         endGame();
                     } else if (opponent != null && message.matches("\\d+")) {
                         opponent.out.println(message);
+                        this.isMyTurn = false;
+                        opponent.isMyTurn = true;
                     } else if (message.equals("REQUEST_PLAYER_LIST")) {
                         sendPlayerList();
                     }
@@ -130,9 +151,3 @@ public class TicTacToeServer {
         }
     }
 }
-
-
-
-
-
-
