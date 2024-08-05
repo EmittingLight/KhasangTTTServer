@@ -54,6 +54,7 @@ public class TicTacToe extends JFrame {
                     if (gameInProgress && isMyTurn && !awaitingConfirmation && confirmedNewGame && buttons[index].getText().isEmpty()) {
                         buttons[index].setText(String.valueOf(mySymbol));
                         out.println(index);
+                        isMyTurn = false; // Блокируем ход после нажатия кнопки
                         if (checkWin(mySymbol)) {
                             JOptionPane.showMessageDialog(TicTacToe.this, playerName + " выиграли символом " + mySymbol + "!", "Победа", JOptionPane.INFORMATION_MESSAGE);
                             out.println("WIN");
@@ -62,8 +63,6 @@ public class TicTacToe extends JFrame {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
                             out.println("DRAW");
                             endGame();
-                        } else {
-                            isMyTurn = false;
                         }
                     } else if (!isMyTurn) {
                         JOptionPane.showMessageDialog(TicTacToe.this, "Это не ваш ход. Пожалуйста, подождите.", "Ошибка", JOptionPane.ERROR_MESSAGE);
@@ -149,6 +148,7 @@ public class TicTacToe extends JFrame {
         inGamePlayers.remove(player);
         clearBoard(); // Очистка поля
         requestPlayerListUpdate(); // Обновление списка игроков
+        playerList.setEnabled(true); // Разблокировка списка игроков
     }
 
     private void requestPlayerListUpdate() {
@@ -231,6 +231,7 @@ public class TicTacToe extends JFrame {
                             clearBoard(); // Сброс игры для текущего игрока
                             gameInProgress = false; // Игра не началась
                             enableButtons(false); // Заблокировать кнопки
+                            playerList.setEnabled(true); // Разблокировка списка игроков
                         } else if (message.startsWith("CONFIRMED ")) {
                             String opponentName = message.substring(10);
                             JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
@@ -271,16 +272,19 @@ public class TicTacToe extends JFrame {
                             removeInGamePlayer(playerName);
                             gameInProgress = false; // Игра завершилась
                             enableButtons(false); // Заблокировать кнопки
+                            playerList.setEnabled(true); // Разблокировка списка игроков
                         } else if (message.equals("DRAW")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Ничья!", "Ничья", JOptionPane.INFORMATION_MESSAGE);
                             removeInGamePlayer(playerName);
                             gameInProgress = false; // Игра завершилась
                             enableButtons(false); // Заблокировать кнопки
+                            playerList.setEnabled(true); // Разблокировка списка игроков
                         } else if (message.equals("LOSE")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Вы проиграли!", "Поражение", JOptionPane.INFORMATION_MESSAGE);
                             removeInGamePlayer(playerName);
                             gameInProgress = false; // Игра завершилась
                             enableButtons(false); // Заблокировать кнопки
+                            playerList.setEnabled(true); // Разблокировка списка игроков
                         } else if (message.equals("GAME_ENDED")) {
                             JOptionPane.showMessageDialog(TicTacToe.this, "Игра закончена, так как оппонент отказался продолжать игру.", "Игра завершена", JOptionPane.INFORMATION_MESSAGE);
                             removeInGamePlayer(playerName);
@@ -288,6 +292,7 @@ public class TicTacToe extends JFrame {
                             resetGame();
                             gameInProgress = false; // Игра завершилась
                             enableButtons(false); // Заблокировать кнопки
+                            playerList.setEnabled(true); // Разблокировка списка игроков
                         }
                     }
                 }
@@ -390,3 +395,4 @@ public class TicTacToe extends JFrame {
         }
     }
 }
+
