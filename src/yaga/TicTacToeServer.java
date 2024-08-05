@@ -44,6 +44,7 @@ public class TicTacToeServer {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
 
+                out.println("ENTER_NAME");
                 playerName = in.readLine();
                 playerMap.put(playerName, this);
                 sendPlayerList();
@@ -68,9 +69,10 @@ public class TicTacToeServer {
                             challengerHandler.opponent = this;
                             this.awaitingResponse = false;
                             challengerHandler.awaitingResponse = false;
-                            challengerHandler.out.println("CONFIRMED " + playerName);
                             challengerHandler.out.println("START X");
                             this.out.println("START O");
+                            challengerHandler.out.println("CONFIRMED " + playerName);
+                            this.out.println("CONFIRMED " + challengerName);  // Отправляем сообщение подтверждения обоим игрокам
                             sendPlayerList();  // обновить список игроков
                         }
                     } else if (message.startsWith("DECLINE ")) {

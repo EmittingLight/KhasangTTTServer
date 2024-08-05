@@ -13,7 +13,6 @@ public class TicTacToe extends JFrame {
     private char mySymbol;
     private char opponentSymbol;
     private boolean isMyTurn = false;
-    private boolean gameStarted = false; // Флаг для отслеживания начала игры
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
@@ -48,7 +47,7 @@ public class TicTacToe extends JFrame {
             buttons[i].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 50));
             buttons[i].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if (gameStarted && isMyTurn && buttons[index].getText().isEmpty()) {
+                    if (isMyTurn && buttons[index].getText().isEmpty()) {
                         buttons[index].setText(String.valueOf(mySymbol));
                         out.println(index);
                         if (checkWin(mySymbol)) {
@@ -62,8 +61,6 @@ public class TicTacToe extends JFrame {
                         } else {
                             isMyTurn = false;
                         }
-                    } else if (!gameStarted) {
-                        JOptionPane.showMessageDialog(TicTacToe.this, "Игра ещё не началась. Пожалуйста, подождите.", "Ошибка", JOptionPane.ERROR_MESSAGE);
                     } else if (!isMyTurn) {
                         JOptionPane.showMessageDialog(TicTacToe.this, "Это не ваш ход. Пожалуйста, подождите.", "Ошибка", JOptionPane.ERROR_MESSAGE);
                     }
@@ -210,17 +207,6 @@ public class TicTacToe extends JFrame {
                             mySymbol = parts[1].charAt(0);
                             opponentSymbol = (mySymbol == 'X') ? 'O' : 'X';
                             isMyTurn = (mySymbol == 'X'); // X начинает
-                            gameStarted = true; // Игра началась
-
-                            String firstTurnMessage = isMyTurn
-                                    ? "Вы ходите первым, так как играете за X."
-                                    : "Ваш противник ходит первым, так как он играет за X.";
-                            JOptionPane.showMessageDialog(
-                                    TicTacToe.this,
-                                    firstTurnMessage,
-                                    "Начало игры",
-                                    JOptionPane.INFORMATION_MESSAGE
-                            );
                         } else if (message.startsWith("PLAYER_LIST")) {
                             String[] parts = message.substring(12).split(",");
                             updatePlayerList(parts);
@@ -236,6 +222,17 @@ public class TicTacToe extends JFrame {
                             String opponentName = message.substring(10);
                             JOptionPane.showMessageDialog(TicTacToe.this, opponentName + " принял ваше приглашение.", "Приглашение принято", JOptionPane.INFORMATION_MESSAGE);
                             addInGamePlayer(opponentName);
+
+                            // Теперь, когда игрок принял приглашение, отображаем, кто ходит первым
+                            String firstTurnMessage = isMyTurn
+                                    ? "Вы ходите первым, так как играете за X."
+                                    : "Ваш противник ходит первым, так как он играет за X.";
+                            JOptionPane.showMessageDialog(
+                                    TicTacToe.this,
+                                    firstTurnMessage,
+                                    "Начало игры",
+                                    JOptionPane.INFORMATION_MESSAGE
+                            );
                         } else if (message.matches("\\d+")) {
                             int index = Integer.parseInt(message);
                             SwingUtilities.invokeLater(new Runnable() {
@@ -279,7 +276,6 @@ public class TicTacToe extends JFrame {
 
     private void endGame() {
         clearBoard(); // Очистка поля
-        gameStarted = false; // Сбрасываем флаг начала игры
         int option = JOptionPane.showOptionDialog(
                 TicTacToe.this,
                 "Хотите начать новую игру?",
@@ -327,7 +323,6 @@ public class TicTacToe extends JFrame {
         isMyTurn = false;
         mySymbol = '\0';
         opponentSymbol = '\0';
-        gameStarted = false;
         inGamePlayers.clear();
         requestPlayerListUpdate();
 
@@ -350,7 +345,6 @@ public class TicTacToe extends JFrame {
         }
     }
 }
-
 
 
 
