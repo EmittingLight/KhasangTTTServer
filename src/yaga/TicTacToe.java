@@ -208,7 +208,6 @@ public class TicTacToe extends JFrame {
                             opponentSymbol = (mySymbol == 'X') ? 'O' : 'X';
                             isMyTurn = (mySymbol == 'X'); // X начинает
 
-                            // Добавлено сообщение о том, кто ходит первым
                             String firstTurnMessage = isMyTurn
                                     ? "Вы ходите первым, так как играете за X."
                                     : "Ваш противник ходит первым, так как он играет за X.";
@@ -272,6 +271,7 @@ public class TicTacToe extends JFrame {
             }
         }
     }
+
 
     private void endGame() {
         clearBoard(); // Очистка поля
