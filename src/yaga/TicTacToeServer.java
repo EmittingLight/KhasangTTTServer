@@ -31,9 +31,9 @@ public class TicTacToeServer {
         private String playerName;
         private ClientHandler opponent;
         private boolean awaitingResponse = false;
-        private boolean awaitingConfirmation = false; // Новый флаг
-        private boolean confirmedNewGame = false; // Флаг для подтверждения новой игры
-        private boolean isMyTurn = false; // Добавлено
+        private boolean awaitingConfirmation = false;
+        private boolean confirmedNewGame = false;
+        private boolean isMyTurn = false;
         private char mySymbol;
         private char opponentSymbol;
         private static final String CHALLENGE_PREFIX = "CHALLENGE ";
@@ -96,10 +96,14 @@ public class TicTacToeServer {
                         if (opponent != null) {
                             this.awaitingConfirmation = true;
                             opponent.awaitingConfirmation = true;
-                            this.confirmedNewGame = true; // Подтверждаем готовность начать новую игру
+                            this.confirmedNewGame = true;
                             if (opponent.confirmedNewGame) {
                                 this.out.println("START " + mySymbol);
                                 opponent.out.println("START " + opponentSymbol);
+                                this.awaitingConfirmation = false;
+                                opponent.awaitingConfirmation = false;
+                                this.confirmedNewGame = false;
+                                opponent.confirmedNewGame = false;
                             }
                         }
                     } else if (message.equals("END_GAME")) {
