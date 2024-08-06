@@ -44,7 +44,7 @@ public class TicTacToe extends JFrame {
     private void initializeComponents() {
         JPanel boardPanel = new JPanel();
         boardPanel.setLayout(new GridLayout(3, 3));
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; 9 > i; i++) {
             final int index = i;
             buttons[i] = new JButton();
             buttons[i].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 50));
