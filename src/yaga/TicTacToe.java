@@ -149,6 +149,7 @@ public class TicTacToe extends JFrame {
         clearBoard(); // Очистка поля
         requestPlayerListUpdate(); // Обновление списка игроков
         playerList.setEnabled(true); // Разблокировка списка игроков
+        enableButtons(true); // Разблокировка кнопок
     }
 
     private void requestPlayerListUpdate() {
@@ -364,6 +365,9 @@ public class TicTacToe extends JFrame {
         // Разблокировка выпадающего списка
         playerList.setEnabled(true);
 
+        // Разблокировка кнопок
+        enableButtons(false);
+
         // Подключение к серверу заново
         connectToServer();
 
@@ -386,7 +390,6 @@ public class TicTacToe extends JFrame {
         awaitingConfirmation = false; // Новый статус
         confirmedNewGame = true; // Подтверждение новой игры
         enableButtons(true); // Разблокировать кнопки
-        // Дополнительные настройки, если необходимо
     }
 
     private void enableButtons(boolean enable) {
@@ -395,4 +398,3 @@ public class TicTacToe extends JFrame {
         }
     }
 }
-
